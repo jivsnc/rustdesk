@@ -30,6 +30,11 @@ macro_rules! my_println{
 /// If it returns [`Some`], then the process will continue, and flutter gui will be started.
 #[cfg(not(any(target_os = "android", target_os = "ios")))]
 pub fn core_main() -> Option<Vec<String>> {
+    // No log files unless asked for: init_log takes its spec from RUST_LOG, so setting it
+    // (e.g. RUST_LOG=error) brings logging back. Child processes inherit the value.
+    if std::env::var_os("RUST_LOG").is_none() {
+        std::env::set_var("RUST_LOG", "off");
+    }
     if !crate::common::global_init() {
         return None;
     }
