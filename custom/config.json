@@ -1,0 +1,11 @@
+{
+  "app-name": "MyDesk",
+  "override-settings": {
+    "custom-rendezvous-server": "rd.example.com",
+    "relay-server": "rd.example.com",
+    "api-server": "",
+    "key": "SERVER_PUBLIC_KEY_FROM_id_ed25519.pub"
+  },
+  "default-settings": {
+  }
+}
