@@ -38,7 +38,7 @@ def main(argv):
         print(pubkey(load_key(argv[1])))
     elif len(argv) == 4 and argv[0] == 'sign':
         sk = load_key(argv[1])
-        with open(argv[2], encoding='utf-8') as f:
+        with open(argv[2], encoding='utf-8-sig') as f:
             config = json.load(f)
         data = json.dumps(config, ensure_ascii=False, separators=(',', ':')).encode()
         with open(argv[3], 'w', encoding='ascii') as f:
