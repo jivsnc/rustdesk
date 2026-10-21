@@ -2,7 +2,7 @@
 # See custom\README.md.
 param(
     [string]$SigningKey = 'C:\work\keys\rustdesk-custom-sign.key',
-    [string]$Config = "$PSScriptRoot\config.json",
+    [string]$Config = 'C:\work\keys\sncdesk-config.json',
     [string]$Tools = 'C:\work'
 )
 $ErrorActionPreference = 'Stop'
@@ -39,6 +39,7 @@ function Get-Cached([string]$url, [string]$name) {
     $file
 }
 
+if (-not (Test-Path $Config)) { throw "config $Config not found: copy custom\config.example.json there and fill it in" }
 $cfg = Get-Content $Config -Raw -Encoding utf8
 if ($cfg -match 'example\.com|SERVER_PUBLIC_KEY') { throw "$Config still has placeholder values" }
 $appName = ($cfg | ConvertFrom-Json).'app-name'
