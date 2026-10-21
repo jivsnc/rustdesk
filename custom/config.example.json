@@ -4,7 +4,9 @@
     "custom-rendezvous-server": "rd.example.com",
     "relay-server": "rd.example.com",
     "key": "SERVER_PUBLIC_KEY_FROM_id_ed25519.pub",
-    "approve-mode": "click"
+    "approve-mode": "click",
+    "enable-webrtc": "N",
+    "enable-ipv6-punch": "N"
   },
   "default-settings": {
   }
