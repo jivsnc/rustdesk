@@ -58,6 +58,10 @@ powershell -ExecutionPolicy Bypass -File custom\build.ps1
 `custom.txt`; при запуске распаковывается в `%LOCALAPPDATA%\<app-name>`
 (упаковщик берёт папку из имени вложенного exe).
 
+Рядом — `…-x86_64-sciter.zip` для поставки в своём каталоге без упаковщика:
+`<app-name>.exe`, `sciter.dll`, `custom.txt` (без него клиент — обычный
+RustDesk с официальными серверами). Драйвер `usbmmidd_v2` туда не входит.
+
 Внешний exe можно переименовать как угодно, кроме имён, на которые клиент
 реагирует особо: с `install`, `-qs-`, `host=`, `licensed`.
 

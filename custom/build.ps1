@@ -79,6 +79,11 @@ try {
     $dist = "$out\dist\$($appName.ToLower())-$version-x86_64-sciter.exe"
     Copy-Item target\release\rustdesk-portable-packer.exe $dist -Force
     Write-Host "Built $dist"
+
+    # Unpacked variant for shipping in our own folder: no virtual display driver, no unpacking.
+    $zip = [IO.Path]::ChangeExtension($dist, '.zip')
+    Compress-Archive -Path "$rel\$exeName", "$rel\sciter.dll", "$rel\custom.txt" -DestinationPath $zip -Force
+    Write-Host "Built $zip"
 } finally {
     Pop-Location
 }
