@@ -20,9 +20,12 @@ $env:Path = "$Tools\rust\cargo\bin;$env:Path"
 $env:RUSTUP_TOOLCHAIN = '1.75'
 $env:PYTHONUTF8 = '1'
 
-function Run([string]$exe) {
-    & $exe @args
-    if ($LASTEXITCODE -ne 0) { throw "$exe $args failed with exit code $LASTEXITCODE" }
+# No param block: a declared parameter would swallow tool flags like -e by prefix match.
+function Run {
+    $exe = $args[0]
+    $rest = @($args | Select-Object -Skip 1)
+    & $exe @rest
+    if ($LASTEXITCODE -ne 0) { throw "$args failed with exit code $LASTEXITCODE" }
 }
 
 function Get-Cached([string]$url, [string]$name) {
@@ -43,6 +46,7 @@ if (-not $appName -or $appName -eq 'RustDesk') {
     throw "app-name in $Config must be set and differ from RustDesk, or the official updater stays enabled"
 }
 if (-not (Test-Path $SigningKey)) { throw "signing key $SigningKey not found" }
+$started = Get-Date
 $version = (Select-String -Path "$root\Cargo.toml" -Pattern '^version = "(.+)"' | Select-Object -First 1).Matches.Groups[1].Value
 
 Push-Location $root
@@ -76,8 +80,10 @@ try {
         Remove-Item libs\portable\app_metadata.toml -ErrorAction SilentlyContinue
     }
 
+    $packer = Get-Item target\release\rustdesk-portable-packer.exe
+    if ($packer.LastWriteTime -lt $started) { throw "$($packer.FullName) was not rebuilt" }
     $dist = "$out\dist\$($appName.ToLower())-$version-x86_64-sciter.exe"
-    Copy-Item target\release\rustdesk-portable-packer.exe $dist -Force
+    Copy-Item $packer $dist -Force
     Write-Host "Built $dist"
 
     # Unpacked variant for shipping in our own folder: no virtual display driver, no unpacking.
