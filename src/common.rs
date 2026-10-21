@@ -2713,6 +2713,12 @@ pub async fn test_ipv6() -> Option<tokio::task::JoinHandle<()>> {
     });
     */
 
+    // The STUN probe only feeds IPv6 punching; skip it so a client with punching off never
+    // contacts the public STUN servers.
+    if !get_ipv6_punch_enabled() {
+        return None;
+    }
+
     Some(tokio::spawn(async {
         use hbb_common::futures::future::{select_ok, FutureExt};
         let tests = hbb_common::webrtc::WebRTCStream::default_stun_servers()
