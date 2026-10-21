@@ -54,8 +54,21 @@ powershell -ExecutionPolicy Bypass -File custom\build.ps1
 ```
 
 Результат: `custom\out\dist\<app-name>-<версия>-x86_64-sciter.exe` — один exe,
-внутри `rustdesk.exe`, `sciter.dll`, `usbmmidd_v2` и `custom.txt`; при запуске
-распаковывается в `%LOCALAPPDATA%\rustdesk`.
+внутри `<app-name>.exe` (в нижнем регистре), `sciter.dll`, `usbmmidd_v2` и
+`custom.txt`; при запуске распаковывается в `%LOCALAPPDATA%\<app-name>`
+(упаковщик берёт папку из имени вложенного exe).
+
+Внешний exe можно переименовать как угодно, кроме имён, на которые клиент
+реагирует особо: с `install`, `-qs-`, `host=`, `licensed`.
+
+### Имена вспомогательных файлов
+
+Коммит `custom: name helper executables after SNCDesk` заменяет зашитые
+`rustdesk` на `sncdesk`: `RuntimeBroker_sncdesk.exe` (режим конфиденциальности;
+`src/privacy_mode/win_topmost_window.rs` и `libs/portable/src/main.rs` — имена
+должны совпадать) и `%LOCALAPPDATA%\sncdesk-sciter\sncdesk.exe` (portable-служба,
+`src/platform/windows.rs`). При смене `app-name` поправить и их.
+Установщик MSI (`res/msi`) не используется и не менялся.
 
 ## Переход на новый официальный релиз
 

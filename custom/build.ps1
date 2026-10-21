@@ -54,7 +54,9 @@ try {
     $rel = "$out\Release"
     if (Test-Path $rel) { Remove-Item $rel -Recurse -Force }
     New-Item -ItemType Directory -Force $rel, "$out\dist" | Out-Null
-    Copy-Item target\release\rustdesk.exe $rel
+    # The packer unpacks into %LOCALAPPDATA%\<exe name without extension>.
+    $exeName = "$($appName.ToLower()).exe"
+    Copy-Item target\release\rustdesk.exe "$rel\$exeName"
     Copy-Item (Get-Cached 'https://raw.githubusercontent.com/c-smile/sciter-sdk/master/bin.win/x64/sciter.dll' 'sciter-x64.dll') "$rel\sciter.dll"
     $zip = Get-Cached 'https://github.com/rustdesk-org/rdev/releases/download/usbmmidd_v2/usbmmidd_v2.zip' 'usbmmidd_v2.zip'
     Expand-Archive $zip $rel
@@ -68,7 +70,7 @@ try {
     [IO.File]::WriteAllText("$root\$manifest", (($text -split "`r?`n" | Where-Object { $_ -notmatch 'dpiAware' }) -join $nl))
     try {
         Push-Location libs\portable
-        try { Run $python generate.py -f $rel -o . -e "$rel\rustdesk.exe" } finally { Pop-Location }
+        try { Run $python generate.py -f $rel -o . -e "$rel\$exeName" } finally { Pop-Location }
     } finally {
         Run git checkout -- $manifest
         Remove-Item libs\portable\app_metadata.toml -ErrorAction SilentlyContinue
