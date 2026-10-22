@@ -1,0 +1,16 @@
+SNCDesk — изменённая версия RustDesk 1.5.0 (https://github.com/rustdesk/rustdesk).
+
+Исходный код этой версии: https://github.com/jivsnc/rustdesk, ветка custom/1.5.0.
+Изменения относительно RustDesk — коммиты с заголовком "custom:" в этой ветке
+(название программы, иконки, подтверждение подключений, сборка и др.).
+
+Программа распространяется на условиях GNU Affero General Public License версии 3
+(текст лицензии ниже) без каких-либо гарантий.
+
+SNCDesk is a modified version of RustDesk 1.5.0 (https://github.com/rustdesk/rustdesk).
+Source code: https://github.com/jivsnc/rustdesk, branch custom/1.5.0; the changes are
+the commits titled "custom:". Licensed under the GNU Affero General Public License v3
+(full text below), without any warranty.
+
+--------------------------------------------------------------------------------
+

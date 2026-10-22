@@ -66,7 +66,11 @@ powershell -ExecutionPolicy Bypass -File custom\build.ps1
 
 Рядом — `…-x86_64-sciter.zip` для поставки в своём каталоге без упаковщика:
 `<app-name>.exe`, `sciter.dll`, `custom.txt` (без него клиент — обычный
-RustDesk с официальными серверами). Драйвер `usbmmidd_v2` туда не входит.
+RustDesk с официальными серверами), `LICENSE.txt`. Драйвер `usbmmidd_v2` туда не входит.
+
+`LICENSE.txt` = `custom/NOTICE.txt` (что это изменённый RustDesk и где его исходники —
+https://github.com/jivsnc/rustdesk) + `LICENCE` (AGPL-3.0). Лицензия требует давать
+его вместе с программой; при новой версии поправить ветку в `NOTICE.txt`.
 
 ### 32-битная сборка (Windows 7 x86 и любая 32-битная Windows)
 

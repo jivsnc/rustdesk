@@ -97,6 +97,9 @@ try {
     Expand-Archive $zip $rel
     Remove-Item "$rel\usbmmidd_v2\deviceinstaller.exe", "$rel\usbmmidd_v2\usbmmidd.bat"
     Run $python custom\sign.py sign $SigningKey $Config "$rel\custom.txt"
+    # AGPL: where to get our source, then the license text; UTF-8 with BOM and CRLF for Notepad.
+    $license = (Get-Content custom\NOTICE.txt -Raw -Encoding utf8) + (Get-Content LICENCE -Raw -Encoding utf8)
+    [IO.File]::WriteAllText("$rel\LICENSE.txt", ($license -replace "`r?`n", "`r`n"), (New-Object Text.UTF8Encoding $true))
 
     # Same as CI: the packer's manifest must not declare dpiAware.
     $manifest = 'res\manifest.xml'
@@ -119,7 +122,7 @@ try {
 
     # Unpacked variant for shipping in our own folder: no virtual display driver, no unpacking.
     $zip = [IO.Path]::ChangeExtension($dist, '.zip')
-    Compress-Archive -Path "$rel\$exeName", "$rel\sciter.dll", "$rel\custom.txt" -DestinationPath $zip -Force
+    Compress-Archive -Path "$rel\$exeName", "$rel\sciter.dll", "$rel\custom.txt", "$rel\LICENSE.txt" -DestinationPath $zip -Force
     Write-Host "Built $zip"
 } finally {
     Pop-Location
