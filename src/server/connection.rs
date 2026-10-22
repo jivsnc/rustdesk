@@ -4,6 +4,7 @@ use super::login_failure_check::{
     evaluate_os_credential_policy, record_os_credential_failure, FailureScope,
 };
 use super::{input_service::*, *};
+mod sncdesk;
 #[cfg(feature = "unix-file-copy-paste")]
 use crate::clipboard::try_empty_clipboard_files;
 #[cfg(not(any(target_os = "android", target_os = "ios")))]
@@ -2994,6 +2995,15 @@ impl Connection {
             if (password::approve_mode() == ApproveMode::Click && !allow_logon_screen_password)
                 || password::approve_mode() == ApproveMode::Both && !password::has_valid_password()
             {
+                // SNCDesk: the operator already accepted this peer, do not ask again
+                if !self.is_port_forward() && !self.terminal && sncdesk::is_peer_accepted(&lr.my_id) {
+                    self.set_conn_audit_primary_auth(ConnAuditPrimaryAuth::Click);
+                    if !self.send_logon_response_and_keep_alive().await {
+                        return false;
+                    }
+                    self.try_start_cm(lr.my_id, lr.my_name, self.authorized);
+                    return true;
+                }
                 #[cfg(not(any(target_os = "android", target_os = "ios")))]
                 if should_use_terminal_os_login_scope(self.terminal, &lr.os_login.username) {
                     if let Some(keep_alive) = self.prepare_terminal_login_for_authorization().await
