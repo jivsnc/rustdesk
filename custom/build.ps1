@@ -3,7 +3,10 @@
 param(
     [string]$SigningKey = 'C:\work\keys\rustdesk-custom-sign.key',
     [string]$Config = 'C:\work\keys\sncdesk-config.json',
-    [string]$Tools = 'C:\work'
+    [string]$Tools = 'C:\work',
+    # x86 is the build for 32-bit Windows (including Windows 7 x86); it also runs on x64.
+    [ValidateSet('x64', 'x86')]
+    [string]$Arch = 'x64'
 )
 $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot
@@ -19,6 +22,21 @@ $env:Path = "$Tools\rust\cargo\bin;$env:Path"
 # CI builds Sciter with 1.75: newer versions change the i128 ABI that sciter-rs relies on.
 $env:RUSTUP_TOOLCHAIN = '1.75'
 $env:PYTHONUTF8 = '1'
+$archName = 'x86_64'
+$sciterUrl = 'https://raw.githubusercontent.com/c-smile/sciter-sdk/master/bin.win/x64/sciter.dll'
+$target = "$root\target"
+if ($Arch -eq 'x86') {
+    # Same as CI: sciter-rs' x86 branch needs nightly (abi_thiscall), and an i686 host
+    # toolchain so bindgen in build scripts can load the 32-bit libclang.
+    $env:RUSTUP_TOOLCHAIN = 'nightly-2023-10-13-i686-pc-windows-msvc'
+    $env:LIBCLANG_PATH = "$Tools\LLVM-x86\bin"
+    $archName = 'x86'
+    $sciterUrl = 'https://raw.githubusercontent.com/c-smile/sciter-sdk/master/bin.win/x32/sciter.dll'
+    # A separate target dir keeps the x64 build cache intact.
+    $target = "$out\target-x86"
+    $env:CARGO_TARGET_DIR = $target
+    if (-not (Test-Path "$env:VCPKG_ROOT\installed\x86-windows-static")) { throw "vcpkg x86-windows-static packages not installed, see custom\README.md" }
+}
 
 # No param block: a declared parameter would swallow tool flags like -e by prefix match.
 function Run {
@@ -54,15 +72,27 @@ Push-Location $root
 try {
     Run git submodule update --init --recursive
     Run $python res\inline-sciter.py
-    Run cargo build --locked --release --features inline
+    if ($Arch -eq 'x86') {
+        # Same as CI: switch sciter-rs to its x86 branch for this build only.
+        $toml = [IO.File]::ReadAllText("$root\Cargo.toml")
+        [IO.File]::WriteAllText("$root\Cargo.toml", $toml.Replace('branch = "dyn"', 'branch = "dyn_x86"'))
+        try {
+            Run cargo update -p sciter-rs --precise 674e07d3066ca9a92ced3816203ab6b652629d1e
+            Run cargo build --locked --release --features inline
+        } finally {
+            Run git checkout -- Cargo.toml Cargo.lock
+        }
+    } else {
+        Run cargo build --locked --release --features inline
+    }
 
     $rel = "$out\Release"
     if (Test-Path $rel) { Remove-Item $rel -Recurse -Force }
     New-Item -ItemType Directory -Force $rel, "$out\dist" | Out-Null
     # The packer unpacks into %LOCALAPPDATA%\<exe name without extension>.
     $exeName = "$($appName.ToLower()).exe"
-    Copy-Item target\release\rustdesk.exe "$rel\$exeName"
-    Copy-Item (Get-Cached 'https://raw.githubusercontent.com/c-smile/sciter-sdk/master/bin.win/x64/sciter.dll' 'sciter-x64.dll') "$rel\sciter.dll"
+    Copy-Item "$target\release\rustdesk.exe" "$rel\$exeName"
+    Copy-Item (Get-Cached $sciterUrl "sciter-$Arch.dll") "$rel\sciter.dll"
     $zip = Get-Cached 'https://github.com/rustdesk-org/rdev/releases/download/usbmmidd_v2/usbmmidd_v2.zip' 'usbmmidd_v2.zip'
     Expand-Archive $zip $rel
     Remove-Item "$rel\usbmmidd_v2\deviceinstaller.exe", "$rel\usbmmidd_v2\usbmmidd.bat"
@@ -81,9 +111,9 @@ try {
         Remove-Item libs\portable\app_metadata.toml -ErrorAction SilentlyContinue
     }
 
-    $packer = Get-Item target\release\rustdesk-portable-packer.exe
+    $packer = Get-Item "$target\release\rustdesk-portable-packer.exe"
     if ($packer.LastWriteTime -lt $started) { throw "$($packer.FullName) was not rebuilt" }
-    $dist = "$out\dist\$($appName.ToLower())-$version-x86_64-sciter.exe"
+    $dist = "$out\dist\$($appName.ToLower())-$version-$archName-sciter.exe"
     Copy-Item $packer $dist -Force
     Write-Host "Built $dist"
 

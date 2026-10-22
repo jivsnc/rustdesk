@@ -68,6 +68,33 @@ powershell -ExecutionPolicy Bypass -File custom\build.ps1
 `<app-name>.exe`, `sciter.dll`, `custom.txt` (без него клиент — обычный
 RustDesk с официальными серверами). Драйвер `usbmmidd_v2` туда не входит.
 
+### 32-битная сборка (Windows 7 x86 и любая 32-битная Windows)
+
+x86_64-сборка на 32-битной Windows не запускается. Для неё:
+
+```
+powershell -ExecutionPolicy Bypass -File custom\build.ps1 -Arch x86
+```
+
+Результат: `…-x86-sciter.exe` и `…-x86-sciter.zip`; работает и на 64-битной Windows.
+Как в CI: тулчейн `nightly-2023-10-13-i686-pc-windows-msvc`, 32-битный LLVM
+(`C:\work\LLVM-x86`), ветка `dyn_x86` у sciter-rs (`build.ps1` подменяет её
+в `Cargo.toml`/`Cargo.lock` только на время сборки), 32-битный `sciter.dll`.
+Кэш сборки — `custom\out\target-x86`, чтобы не пересобирать x64.
+
+Один раз поставить инструменты и зависимости vcpkg (отдельный каталог: установка
+в manifest-режиме удалила бы из `installed` пакеты другого triplet'а; `magnum-opus`
+ищет их только в `%VCPKG_ROOT%\installed`, поэтому туда ставится junction;
+`vcpkg install` запускать из корня репозитория):
+
+```
+rustup toolchain install nightly-2023-10-13-i686-pc-windows-msvc --target i686-pc-windows-msvc --profile minimal --force-non-host
+7z x -oC:\work\LLVM-x86 LLVM-15.0.6-win32.exe -x!$PLUGINSDIR
+set VCPKG_DEFAULT_HOST_TRIPLET=x86-windows-static
+vcpkg install --triplet x86-windows-static --x-install-root=C:\work\vcpkg\installed-x86
+mklink /J C:\work\vcpkg\installed\x86-windows-static C:\work\vcpkg\installed-x86\x86-windows-static
+```
+
 Внешний exe можно переименовать как угодно, кроме имён, на которые клиент
 реагирует особо: с `install`, `-qs-`, `host=`, `licensed`.
 
