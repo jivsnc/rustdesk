@@ -68,9 +68,21 @@ powershell -ExecutionPolicy Bypass -File custom\build.ps1
 `<app-name>.exe`, `sciter.dll`, `custom.txt` (без него клиент — обычный
 RustDesk с официальными серверами), `LICENSE.txt`. Драйвер `usbmmidd_v2` туда не входит.
 
-`LICENSE.txt` = `custom/NOTICE.txt` (что это изменённый RustDesk и где его исходники —
-https://github.com/jivsnc/rustdesk) + `LICENCE` (AGPL-3.0). Лицензия требует давать
-его вместе с программой; при новой версии поправить ветку в `NOTICE.txt`.
+`LICENSE.txt` = `custom/NOTICE.txt` (что это изменённый RustDesk, где его исходники —
+https://github.com/jivsnc/rustdesk, и обязательное упоминание Sciter) + `LICENCE`
+(AGPL-3.0). Лицензия требует давать его вместе с программой.
+
+### Выпуск
+
+Исходники на GitHub должны совпадать с распространяемой программой, поэтому
+`NOTICE.txt` ссылается на тег, а не на ветку. Для каждой выпускаемой сборки:
+
+1. в `NOTICE.txt` — новый тег `sncdesk-<версия RustDesk>-<N>` и месяц изменений,
+   коммит;
+2. `git tag sncdesk-…` на этот коммит, `git push origin custom/<версия> sncdesk-…`;
+3. собрать `build.ps1` (x64 и `-Arch x86`) из этого коммита;
+4. проверить, что тег дошёл до https://github.com/jivsnc/rustdesk (зеркало
+   192.168.100.20:3000 синхронизируется не сразу, можно запустить вручную).
 
 ### 32-битная сборка (Windows 7 x86 и любая 32-битная Windows)
 

@@ -1,16 +1,24 @@
-SNCDesk — изменённая версия RustDesk 1.5.0 (https://github.com/rustdesk/rustdesk).
+SNCDesk — изменённая версия RustDesk 1.5.0 (https://github.com/rustdesk/rustdesk,
+Copyright (c) Purslane Tech Pte. Ltd.). Изменения внесены в октябре 2026 года.
 
-Исходный код этой версии: https://github.com/jivsnc/rustdesk, ветка custom/1.5.0.
-Изменения относительно RustDesk — коммиты с заголовком "custom:" в этой ветке
-(название программы, иконки, подтверждение подключений, сборка и др.).
+Исходный код этой версии: https://github.com/jivsnc/rustdesk, тег sncdesk-1.5.0-1
+(https://github.com/jivsnc/rustdesk/tree/sncdesk-1.5.0-1). Изменения относительно
+RustDesk — коммиты с заголовком "custom:" (название программы, иконки, подтверждение
+подключений, сборка и др.).
 
 Программа распространяется на условиях GNU Affero General Public License версии 3
 (текст лицензии ниже) без каких-либо гарантий.
 
-SNCDesk is a modified version of RustDesk 1.5.0 (https://github.com/rustdesk/rustdesk).
-Source code: https://github.com/jivsnc/rustdesk, branch custom/1.5.0; the changes are
-the commits titled "custom:". Licensed under the GNU Affero General Public License v3
-(full text below), without any warranty.
+This Application uses Sciter Engine (http://sciter.com/), copyright Terra Informatica
+Software, Inc. Библиотека sciter.dll не входит в SNCDesk и распространяется на условиях
+лицензии Sciter.
+
+SNCDesk is a modified version of RustDesk 1.5.0 (https://github.com/rustdesk/rustdesk,
+Copyright (c) Purslane Tech Pte. Ltd.), modified in October 2026. Source code:
+https://github.com/jivsnc/rustdesk, tag sncdesk-1.5.0-1; the changes are the commits
+titled "custom:". Licensed under the GNU Affero General Public License v3 (full text
+below), without any warranty. sciter.dll is not part of SNCDesk and is distributed
+under the Sciter license.
 
 --------------------------------------------------------------------------------
 
